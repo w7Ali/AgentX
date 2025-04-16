@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data{% endblock %}
+{% set active_page = 'upload_data' %}
+
+{% block content_header %}
+    <h1 class="text-2xl font-semibold text-gray-900">Upload Data</h1>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow sm:rounded-lg p-4">
+        <!-- Form Section -->
+        <form id="uploadDataForm" action="/api/data/upload" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- User ID input -->
+            <div>
+                <label for="user-id" class="block text-sm font-medium leading-6 text-gray-900">User ID</label>
+                <div class="mt-1">
+                    <input type="text" id="user-id" name="user_id" value="user1" required
+                           class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                </div>
+                <div id="user-id-error" class="mt-1 text-sm text-red-600 hidden">User ID is required</div>
+            </div>
+
+            <!-- File upload section with drag & drop -->
+            <div>
+                <label for="files" class="block text-sm font-medium leading-6 text-gray-900">Upload Files</label>
+                <div class="mt-1">
+                    <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition duration-300 cursor-pointer">
+                        <input id="files" name="files" type="file" multiple class="hidden" accept=".txt,.pdf,.csv,.docx,.html,.md,.json">
+                        <div class="space-y-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <div class="text-sm text-gray-600">
+                                <label for="files" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                    Click to upload
+                                </label>
+                                <span> or drag and drop</span>
+                            </div>
+                            <p class="text-xs text-gray-500">
+                                TXT, PDF, CSV, DOCX, HTML, MD, JSON up to 10MB each
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div id="file-error" class="mt-1 text-sm text-red-600 hidden">Please upload at least one file</div>
+            </div>
+
+            <!-- File List Preview (Initially empty) -->
+            <div id="file-list" class="mt-4 space-y-2 hidden">
+                <h3 class="text-sm font-medium text-gray-900">Selected Files:</h3>
+                <ul id="file-preview-list" class="mt-1 divide-y divide-gray-200 border rounded-md overflow-hidden"></ul>
+            </div>
+            
+            <!-- Validation Errors Container -->
+            <div id="validation-errors" class="rounded-md bg-red-50 p-4 hidden">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul id="error-list" class="list-disc pl-5 space-y-1"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button type="submit" id="submit-button"
+                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <span>Upload Files</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+
+        <!-- Progress indicator (hidden by default) -->
+        <div id="upload-progress-container" class="mt-6 hidden">
+            <h3 class="text-sm font-medium text-gray-900">Uploading...</h3>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="upload-status" class="mt-2 text-sm text-gray-600">Preparing files...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="toast-container" aria-live="assertive" aria-atomic="true" class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:items-start sm:p-6 z-50">
+  <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+    <!-- Toast notifications will be appended here -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container').querySelector('div');
+        const toast = document.createElement('div');
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+
+        const isSuccess = type === 'success';
+        const iconPath = isSuccess ? 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' // Check circle
+                                   : 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'; // Exclamation triangle
+
+        toast.className = `pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-300 ease-in-out transform opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2`;
+
+        toast.innerHTML = `
+          <div class="p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-${isSuccess ? 'green' : 'red'}-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="${iconPath}" />
+                </svg>
+              </div>
+              <div class="ml-3 w-0 flex-1 pt-0.5">
+                <p class="text-sm font-medium text-gray-900">${isSuccess ? 'Success' : 'Error'}</p>
+                <p class="mt-1 text-sm text-gray-500">${message}</p>
+              </div>
+              <div class="ml-4 flex flex-shrink-0">
+                <button type="button" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="this.closest('[role=status]').remove()">
+                  <span class="sr-only">Close</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(toast);
+
+        // Animation: Fade in and slide in
+        requestAnimationFrame(() => {
+             toast.classList.remove('opacity-0', 'translate-y-2', 'sm:translate-x-2');
+             toast.classList.add('opacity-100', 'translate-y-0', 'sm:translate-x-0');
+        });
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.classList.remove('opacity-100', 'translate-y-0', 'sm:translate-x-0');
+                toast.classList.add('opacity-0', 'translate-y-2', 'sm:translate-x-2');
+                setTimeout(() => toast.remove(), 500); // Remove from DOM after transition
+            }
+        }, 5000);
+    }
+
+    // Function to display validation errors
+    function showValidationErrors(errors) {
+        const errorContainer = document.getElementById('validation-errors');
+        const errorList = document.getElementById('error-list');
+        
+        // Clear existing errors
+        errorList.innerHTML = '';
+        
+        // Add each error to the list
+        errors.forEach(error => {
+            const li = document.createElement('li');
+            li.textContent = error;
+            errorList.appendChild(li);
+        });
+        
+        // Show the error container
+        errorContainer.classList.remove('hidden');
+    }
+
+    // Function to hide validation errors
+    function hideValidationErrors() {
+        document.getElementById('validation-errors').classList.add('hidden');
+    }
+
+    // Function to create file preview item
+    function createFilePreviewItem(file) {
+        const item = document.createElement('li');
+        item.className = 'flex items-center px-4 py-3 hover:bg-gray-50';
+        
+        // File icon based on type
+        let iconPath;
+        if (file.type.includes('pdf')) {
+            iconPath = 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z';
+        } else if (file.type.includes('csv') || file.type.includes('excel')) {
+            iconPath = 'M10.5 3.75a6 6 0 00-5.98 6.496A5.25 5.25 0 006.75 20.25H18a4.5 4.5 0 002.206-8.423 3.75 3.75 0 00-4.133-4.303A6.001 6.001 0 0010.5 3.75zm2.03 5.47a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72v4.94a.75.75 0 001.5 0v-4.94l1.72 1.72a.75.75 0 101.06-1.06l-3-3z';
+        } else {
+            iconPath = 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z';
+        }
+        
+        // Calculate file size for display
+        const fileSize = file.size < 1024 * 1024 
+            ? `${(file.size / 1024).toFixed(1)} KB` 
+            : `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+        
+        item.innerHTML = `
+            <div class="flex-shrink-0 mr-3">
+                <svg class="h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="${iconPath}" />
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                <p class="text-xs text-gray-500">${fileSize}</p>
+            </div>
+            <div class="ml-3 flex-shrink-0">
+                <button type="button" class="remove-file inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500" data-filename="${file.name}">
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span class="sr-only">Remove file</span>
+                </button>
+            </div>
+        `;
+        
+        return item;
+    }
+
+    // Function to validate files
+    function validateFiles(files) {
+        const errors = [];
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        const allowedFileTypes = [
+            'text/plain', 'application/pdf', 'text/csv', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+            'text/html', 'text/markdown', 'application/json'
+        ];
+        
+        if (files.length === 0) {
+            errors.push('Please select at least one file to upload.');
+            return errors;
+        }
+        
+        for (const file of files) {
+            if (file.size > maxFileSize) {
+                errors.push(`File "${file.name}" exceeds the maximum file size of 10MB.`);
+            }
+            
+            if (!allowedFileTypes.includes(file.type) && file.name !== '.DS_Store') {
+                const extension = file.name.split('.').pop().toLowerCase();
+                // Some files might have a known extension but unknown MIME type
+                if (!['txt', 'pdf', 'csv', 'docx', 'html', 'md', 'json'].includes(extension)) {
+                    errors.push(`File "${file.name}" has an unsupported file type. Please upload only TXT, PDF, CSV, DOCX, HTML, MD, or JSON files.`);
+                }
+            }
+        }
+        
+        return errors;
+    }
+
+    // Function to update the file list UI
+    function updateFileList(fileList) {
+        const fileListContainer = document.getElementById('file-list');
+        const filePreviewList = document.getElementById('file-preview-list');
+        
+        // Clear existing list
+        filePreviewList.innerHTML = '';
+        
+        if (fileList.length > 0) {
+            // Add each file to the preview list
+            for (const file of fileList) {
+                if (file.name !== '.DS_Store') { // Skip hidden files
+                    const fileItem = createFilePreviewItem(file);
+                    filePreviewList.appendChild(fileItem);
+                }
+            }
+            
+            // Show the file list container
+            fileListContainer.classList.remove('hidden');
+        } else {
+            // Hide the file list container if no files
+            fileListContainer.classList.add('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('uploadDataForm');
+        const fileInput = document.getElementById('files');
+        const dropArea = document.getElementById('drop-area');
+        const userIdInput = document.getElementById('user-id');
+        const submitButton = document.getElementById('submit-button');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+        
+        let uploadedFiles = [];
+        
+        // Clear error when user ID is edited
+        userIdInput.addEventListener('input', function() {
+            document.getElementById('user-id-error').classList.add('hidden');
+            hideValidationErrors();
+        });
+        
+        // Add drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('bg-gray-50', 'border-indigo-300');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('bg-gray-50', 'border-indigo-300');
+        }
+        
+        // Handle dropped files
+        dropArea.addEventListener('drop', function(e) {
+            const droppedFiles = e.dataTransfer.files;
+            fileInput.files = droppedFiles;
+            handleFiles(droppedFiles);
+        });
+        
+        // Handle selected files from file input
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        // Handle file selection
+        function handleFiles(files) {
+            const errors = validateFiles(files);
+            
+            if (errors.length > 0) {
+                showValidationErrors(errors);
+                return;
+            }
+            
+            hideValidationErrors();
+            document.getElementById('file-error').classList.add('hidden');
+            
+            // Store files for form submission
+            uploadedFiles = Array.from(files);
+            
+            // Update UI with file list
+            updateFileList(uploadedFiles);
+        }
+        
+        // Handle remove file button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-file')) {
+                const button = e.target.closest('.remove-file');
+                const filename = button.dataset.filename;
+                
+                // Remove the file from the array
+                uploadedFiles = uploadedFiles.filter(file => file.name !== filename);
+                
+                // Update the UI
+                updateFileList(uploadedFiles);
+                
+                // If no files left, show validation message
+                if (uploadedFiles.length === 0) {
+                    document.getElementById('file-error').classList.remove('hidden');
+                }
+            }
+        });
+        
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            let isValid = true;
+            const userId = userIdInput.value.trim();
+            
+            // Check user ID
+            if (!userId) {
+                document.getElementById('user-id-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('user-id-error').classList.add('hidden');
+            }
+            
+            // Check files
+            if (uploadedFiles.length === 0) {
+                document.getElementById('file-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('file-error').classList.add('hidden');
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            
+            // Add each file
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+            
+            // Show progress UI
+            progressContainer.classList.remove('hidden');
+            submitButton.disabled = true;
+            
+            try {
+                // Send request to API
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', form.action, true);
+                
+                // Track upload progress
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        uploadStatus.textContent = `Uploading... ${percentComplete}%`;
+                    }
+                };
+                
+                // Handle response
+                xhr.onload = function() {
+                    progressContainer.classList.add('hidden');
+                    submitButton.disabled = false;
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            // Success response
+                            showToast('Files uploaded successfully!', 'success');
+                            
+                            // Clear the form
+                            uploadedFiles = [];
+                            fileInput.value = '';
+                            updateFileList(uploadedFiles);
+                            document.getElementById('file-list').classList.add('hidden');
+                            
+                        } else {
+                            // Error response
+                            const errorMessage = response.detail || response.message || 'An error occurred during upload.';
+                            showToast(errorMessage, 'error');
+                            
+                            if (Array.isArray(response.detail)) {
+                                showValidationErrors(response.detail.map(err => err.msg || err.message || JSON.stringify(err)));
+                            } else if (typeof errorMessage === 'string') {
+                                showValidationErrors([errorMessage]);
+                            }
+                        }
+                    } catch (error) {
+                        // Parse error
+                        console.error('Error parsing response:', error);
+                        showToast('Error processing server response', 'error');
+                    }
+                };
+                
+                // Handle network errors
+                xhr.onerror = function() {
+                    progressContainer.classList.add('hidden');
+                    submitButton.disabled = false;
+                    showToast('Network error occurred. Please try again.', 'error');
+                };
+                
+                // Send the request
+                xhr.send(formData);
+                
+            } catch (error) {
+                // Handle any other errors
+                progressContainer.classList.add('hidden');
+                submitButton.disabled = false;
+                console.error('Error:', error);
+                showToast(error.message || 'An error occurred', 'error');
+            }
+        });
+        
+        // Click on drop area to trigger file input
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+    });
+</script>
+{% endblock %} 

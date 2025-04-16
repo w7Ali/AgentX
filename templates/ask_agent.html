@@ -1,126 +1,392 @@
+<!-- templates/ask_agent.html -->
 {% extends "base.html" %}
 
 {% block title %}Ask Agent{% endblock %}
 {% set active_page = 'ask_agent' %}
 
 {% block content %}
-<div class="flex flex-col h-[90vh] w-full max-w-4xl mx-auto bg-white shadow-md rounded-xl overflow-hidden">
-
-    <!-- Title -->
-    <div class="p-4 text-white text-center text-xl font-semibold" style="background-color: #844D32;">Ask Agent</div>
-
-    <!-- Chat Messages -->
-    <div id="chat-container" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
-        <!-- Chat bubbles will be appended here -->
+<div class="flex flex-col h-[calc(100vh-130px)] w-full mx-auto bg-white shadow sm:rounded-lg overflow-hidden border border-gray-200" style="height: 77vh;">
+    <!-- Chat Header with Agent Selection -->
+    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center">
+        <div class="flex-1">
+            <div class="flex gap-3 items-center">
+                <select id="agent_name_ask" name="agent_name" class="form-select bg-white text-gray-900 rounded-md border-0 py-1.5 px-3 text-sm shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600">
+                    <option value="MyBot" selected>MyBot</option>
+                    <!-- Other agents would be populated dynamically -->
+                </select>
+                <div class="relative flex-1 max-w-xs">
+                    <input type="text" id="user_id_ask" name="user_id" value="user1" required
+                           class="form-input block w-full rounded-md bg-white border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 text-sm"
+                           placeholder="User ID" />
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-indigo-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Chat Input Form -->
-    <form
-        id="askAgentForm"
-        action="/agent/ask_agent"
-        method="post"
-        class="border-t p-4 bg-white"
-    >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input type="text" name="agent_name" value="MyBot" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm"
-                placeholder="Agent Name" />
-            <input type="text" name="user_id" value="user1" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm"
-                placeholder="User ID" />
+    <!-- Chat Messages Area -->
+    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-6 bg-white scroll-smooth">
+        <!-- Welcome message -->
+        <div class="chat-message agent-message">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 markdown-content bg-gray-100 p-4 rounded-lg rounded-tl-none shadow text-gray-800 max-w-3xl">
+                    <p>I'm your AI assistant. What would you like to know?</p>
+                </div>
+            </div>
         </div>
-        <div class="flex items-center gap-4">
-            <textarea name="question" rows="1" required
-                class="flex-1 border border-gray-300 px-4 py-3 rounded-lg resize-none text-sm"
-                placeholder="Type your question..."></textarea>
-            <button type="submit"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition duration-200"
-                id="submitButton"
-                style="background-color: #152133;">
-                Ask
-            </button>
-        </div>
-    </form>
+        <!-- Messages will be appended here -->
+    </div>
+
+    <!-- Input Area with floating UI -->
+    <div class="border-t border-gray-200 bg-gray-50 px-4 py-3">
+        <form id="askAgentForm" action="/agent/ask_agent" method="post" class="relative">
+            <div class="flex items-end gap-2">
+                <div class="flex-1 min-w-0 relative">
+                    <textarea id="question_input" name="question" rows="1" required
+                             class="form-textarea block w-full rounded-lg border-0 bg-white py-2 pl-3 pr-10 text-gray-900 placeholder:text-gray-400 resize-none ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 text-sm shadow-sm"
+                             placeholder="Message..."
+                             oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                             style="min-height: 42px; max-height: 200px;"></textarea>
+                </div>
+                <button type="submit" id="submitButton"
+                        class="inline-flex items-center justify-center rounded-full bg-indigo-600 p-2 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                    <span class="sr-only">Send</span>
+                </button>
+            </div>
+            <div id="loadingIndicator" class="text-xs text-indigo-600 mt-2 text-center hidden">
+                <div class="inline-flex items-center">
+                    <svg class="animate-pulse mr-2 h-2 w-2 text-indigo-600" fill="currentColor" viewBox="0 0 8 8">
+                        <circle cx="4" cy="4" r="3" />
+                    </svg>
+                    <svg class="animate-pulse animate-delay-200 mr-2 h-2 w-2 text-indigo-600" fill="currentColor" viewBox="0 0 8 8">
+                        <circle cx="4" cy="4" r="3" />
+                    </svg>
+                    <svg class="animate-pulse animate-delay-400 mr-2 h-2 w-2 text-indigo-600" fill="currentColor" viewBox="0 0 8 8">
+                        <circle cx="4" cy="4" r="3" />
+                    </svg>
+                    Thinking
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- JS -->
+{# Toast Notification Container #}
+<div id="toast-container" aria-live="assertive" aria-atomic="true" class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:items-start sm:p-6 z-50">
+  <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+    <!-- Toasts appended here -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.animate-delay-200 {
+    animation-delay: 200ms;
+}
+.animate-delay-400 {
+    animation-delay: 400ms;
+}
+
+/* Modern chat message styles */
+.chat-message {
+    @apply transition-opacity duration-300 ease-in-out opacity-100;
+}
+.chat-message.fade-in {
+    @apply opacity-0;
+}
+.chat-message.user-message {
+    @apply flex justify-end;
+}
+.user-message .markdown-content {
+    @apply bg-indigo-600 text-white rounded-lg rounded-tr-none;
+}
+.agent-message .markdown-content {
+    @apply bg-gray-100 text-gray-800;
+}
+.error-message .markdown-content {
+    @apply bg-red-50 text-red-700 border border-red-200;
+}
+
+/* Markdown content styling */
+.markdown-content {
+    @apply overflow-auto;
+}
+.markdown-content p {
+    @apply mb-3 last:mb-0;
+}
+.markdown-content code {
+    @apply font-mono text-sm px-1 py-0.5 rounded;
+}
+.markdown-content pre {
+    @apply mt-2 mb-4 p-3 rounded-md overflow-x-auto;
+}
+.markdown-content pre code {
+    @apply p-0 bg-transparent;
+}
+.user-message .markdown-content code {
+    @apply bg-indigo-500 text-white;
+}
+.agent-message .markdown-content code {
+    @apply bg-gray-200 text-gray-700;
+}
+.markdown-content pre {
+    @apply bg-gray-800 text-gray-100;
+}
+.user-message .markdown-content pre {
+    @apply bg-indigo-700;
+}
+.markdown-content ul, .markdown-content ol {
+    @apply pl-6 mb-3;
+}
+.markdown-content ul {
+    @apply list-disc;
+}
+.markdown-content ol {
+    @apply list-decimal;
+}
+.markdown-content a {
+    @apply text-indigo-600 hover:underline;
+}
+.user-message .markdown-content a {
+    @apply text-white underline;
+}
+.markdown-content blockquote {
+    @apply pl-4 border-l-4 border-gray-300 text-gray-500 my-2;
+}
+.user-message .markdown-content blockquote {
+    @apply border-indigo-400;
+}
+</style>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('askAgentForm');
-        const chatContainer = document.getElementById('chat-container');
-        const submitButton = document.getElementById('submitButton');
-        let isGenerating = false;
+ function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container').children[0];
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    const isSuccess = type === 'success';
+    const iconColor = isSuccess ? 'text-green-400' : 'text-red-400';
+    const iconPath = isSuccess ? 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z';
+    toast.className = `pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-300 ease-in-out transform opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2`;
+    toast.innerHTML = `
+      <div class="p-4"><div class="flex items-start"><div class="flex-shrink-0">
+        <svg class="h-6 w-6 ${iconColor}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="${iconPath}" /></svg>
+      </div><div class="ml-3 w-0 flex-1 pt-0.5">
+        <p class="text-sm font-medium text-gray-900">${isSuccess ? 'Success' : 'Error'}</p>
+        <p class="mt-1 text-sm text-gray-500">${message}</p>
+      </div><div class="ml-4 flex flex-shrink-0">
+        <button type="button" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="this.closest('[role=status]').remove()">
+          <span class="sr-only">Close</span>
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>
+        </button></div></div></div>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => { 
+        toast.classList.remove('opacity-0', 'translate-y-2', 'sm:translate-x-2'); 
+        toast.classList.add('opacity-100', 'translate-y-0', 'sm:translate-x-0'); 
+    });
+    setTimeout(() => { 
+        toast.classList.remove('opacity-100', 'translate-y-0', 'sm:translate-x-0'); 
+        toast.classList.add('opacity-0', 'translate-y-2', 'sm:translate-x-2'); 
+        setTimeout(() => toast.remove(), 500); 
+    }, 5000);
+ }
 
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
+ document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('askAgentForm');
+    const chatContainer = document.getElementById('chat-container');
+    const submitButton = document.getElementById('submitButton');
+    const questionInput = document.getElementById('question_input');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const agentNameSelect = document.getElementById('agent_name_ask');
+    const userIdInput = document.getElementById('user_id_ask');
+    let isGenerating = false;
 
-            const questionInput = form.querySelector('[name="question"]');
-            const question = questionInput.value.trim();
+    // Function to add a message to the chat
+    function addMessage(text, sender = 'agent', isError = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message', 'fade-in');
+        
+        if (isError) {
+            messageDiv.classList.add('error-message');
+        } else if (sender === 'user') {
+            messageDiv.classList.add('user-message');
+        } else {
+            messageDiv.classList.add('agent-message');
+        }
 
-            if (!question) {
-                alert('Please enter your question.');
-                return;
-            }
+        // Create message content based on sender
+        if (sender === 'user') {
+            // User message - right side with no avatar
+            messageDiv.innerHTML = `
+                <div class="flex items-end justify-end">
+                    <div class="markdown-content p-4 rounded-lg rounded-tr-none shadow max-w-3xl">
+                        ${formatMarkdown(text)}
+                    </div>
+                </div>
+            `;
+        } else {
+            // Agent message - left side with avatar
+            messageDiv.innerHTML = `
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="markdown-content p-4 rounded-lg rounded-tl-none shadow max-w-3xl">
+                        ${formatMarkdown(text)}
+                    </div>
+                </div>
+            `;
+        }
 
-            if (isGenerating) {
-                alert('Please wait for the current response to finish.');
-                return;
-            }
+        chatContainer.appendChild(messageDiv);
+        
+        // Smooth fade-in animation
+        setTimeout(() => {
+            messageDiv.classList.remove('fade-in');
+            chatContainer.scrollTo({ 
+                top: chatContainer.scrollHeight, 
+                behavior: 'smooth' 
+            });
+        }, 10);
+    }
 
-            isGenerating = true;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Waiting...';
+    // Enhanced markdown formatting
+    function formatMarkdown(text) {
+        // Code blocks (```code```)
+        text = text.replace(/```(?:\w+)?\n([\s\S]*?)\n```/g, '<pre><code>$1</code></pre>');
+        
+        // Inline code (`code`)
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Bold (**text**)
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Italic (*text*)
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Unordered lists
+        text = text.replace(/^\s*[-*+]\s+(.*?)(?:\n|$)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
+        
+        // Ordered lists
+        text = text.replace(/^\s*(\d+)\.\s+(.*?)(?:\n|$)/gm, '<ol><li>$2</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
+        
+        // Links
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        
+        // Blockquotes
+        text = text.replace(/^\s*>\s+(.*?)(?:\n|$)/gm, '<blockquote>$1</blockquote>');
+        
+        // Paragraphs and line breaks
+        text = text.replace(/\n\s*\n/g, '</p><p>');
+        text = text.replace(/\n/g, '<br>');
+        
+        // Ensure all content is wrapped in paragraphs
+        if (!text.startsWith('<')) {
+            text = '<p>' + text;
+        }
+        if (!text.endsWith('>')) {
+            text += '</p>';
+        }
+        
+        return text;
+    }
 
-            const formData = new FormData(form);
-            const jsonData = {};
-            formData.forEach((value, key) => {
-                jsonData[key] = value;
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const question = questionInput.value.trim();
+        const agentName = agentNameSelect.value;
+        const userId = userIdInput.value.trim();
+
+        if (!question || !agentName || !userId) {
+             addMessage('Agent Name, User ID, and Question are required.', 'agent', true);
+            return;
+        }
+
+        if (isGenerating) return;
+
+        isGenerating = true;
+        submitButton.disabled = true;
+        loadingIndicator.classList.remove('hidden');
+        const originalButtonHTML = submitButton.innerHTML;
+        submitButton.innerHTML = `
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+
+        addMessage(question, 'user');
+        questionInput.value = '';
+        questionInput.style.height = '42px'; // Reset textarea height
+
+        const formData = {
+            agent_name: agentName,
+            user_id: userId,
+            question: question
+        };
+
+        try {
+            const apiUrl = '/agent/ask_agent'; // API endpoint
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(formData),
             });
 
-            // User Message
-            const userMessage = document.createElement('div');
-            userMessage.className = 'self-end max-w-[80%] bg-indigo-100 text-gray-800 px-4 py-2 rounded-xl';
-            userMessage.textContent = question;
-            chatContainer.appendChild(userMessage);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            questionInput.value = '';
+            const result = await response.json().catch(() => ({}));
 
-            // Send Request
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(jsonData),
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorData)}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const agentMessage = document.createElement('div');
-                    agentMessage.className = 'self-start max-w-[80%] bg-gray-200 text-gray-800 px-4 py-2 rounded-xl';
-                    agentMessage.textContent = data;
-                    chatContainer.appendChild(agentMessage);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                })
-                .catch(error => {
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'self-start max-w-[80%] bg-red-100 text-red-600 px-4 py-2 rounded-xl';
-                    errorMessage.textContent = `Error: ${error.message}`;
-                    chatContainer.appendChild(errorMessage);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                })
-                .finally(() => {
-                    isGenerating = false;
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Ask';
-                });
-        });
+            if (!response.ok) {
+                const errorMsg = result?.detail?.[0]?.msg || result?.detail || result?.message || `HTTP error ${response.status}`;
+                throw new Error(errorMsg);
+            }
+
+            addMessage(result.answer || result.message || 'Received an empty response.', 'agent');
+
+        } catch (error) {
+            console.error('Ask Agent Error:', error);
+            addMessage(`Error: ${error.message}`, 'agent', true);
+        } finally {
+            isGenerating = false;
+            submitButton.disabled = false;
+            loadingIndicator.classList.add('hidden');
+            submitButton.innerHTML = originalButtonHTML;
+            questionInput.focus();
+        }
     });
+
+    // Submit with Enter key (Shift+Enter for newline)
+    questionInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            form.requestSubmit();
+        }
+    });
+
+    // Focus input on page load
+    questionInput.focus();
+ });
 </script>
 {% endblock %}

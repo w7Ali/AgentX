@@ -1,121 +1,162 @@
+<!-- templates/delete_agent.html -->
 {% extends "base.html" %}
 
 {% block title %}Delete Agent{% endblock %}
 {% set active_page = 'delete_agent' %}
 
+{% block content_header %}
+    <h1 class="text-2xl font-semibold text-gray-900">Delete Agent</h1>
+{% endblock %}
+
 {% block content %}
-<div x-data="{ showToast: false, toastMessage: '', toastType: '' }" class="bg-white rounded-xl shadow-md p-8 w-full max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">Delete Agent</h1>
-
-    <form
-        id="delete-agent-form"
-        class="space-y-6"
-        onsubmit="submitForm(event)"
-    >
-        <!-- Agent Name -->
-        <div>
-            <label class="block font-semibold mb-1 text-gray-700">Agent Name</label>
-            <input type="text" name="agent_name" id="agent_name" required class="w-full border border-gray-300 p-3 rounded-lg" />
+<div class="bg-white shadow sm:rounded-lg">
+    <form id="delete-agent-form" action="/agent/delete_agent" method="post"> {# Use JS to modify URL before fetch #}
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Identify Agent for Deletion</h3>
+            <p class="mt-1 text-sm text-gray-500">Please provide the identifiers for the agent you wish to delete.</p>
+            <div class="mt-5 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+                    <label for="agent_name_delete" class="block text-sm font-medium leading-6 text-gray-900">Agent Name</label>
+                    <div class="mt-2">
+                        <input type="text" id="agent_name_delete" name="agent_name" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                    </div>
+                </div>
+                <div class="sm:col-span-3">
+                    <label for="user_id_delete" class="block text-sm font-medium leading-6 text-gray-900">User ID</label>
+                    <div class="mt-2">
+                        <input type="text" id="user_id_delete" name="user_id" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                    </div>
+                </div>
+                 <!-- Index Name (Optional for Deletion?) - Consider if needed by API -->
+                <div class="sm:col-span-3">
+                    <label for="index_name_delete" class="block text-sm font-medium leading-6 text-gray-900">Associated Index Name</label>
+                    <div class="mt-2">
+                        <input type="text" id="index_name_delete" name="index_name" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Index linked to this agent (required for deletion).</p>
+                </div>
+            </div>
         </div>
-
-        <!-- User ID -->
-        <div>
-            <label class="block font-semibold mb-1 text-gray-700">User ID</label>
-            <input type="text" name="user_id" id="user_id" required class="w-full border border-gray-300 p-3 rounded-lg" />
+        <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 bg-red-50 px-4 py-4 sm:px-8">
+            <div class="flex items-center mr-auto">
+                <svg class="h-5 w-5 text-red-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                </svg>
+                <p class="text-sm font-semibold text-red-700">Warning: This action is irreversible.</p>
+            </div>
+            <button type="button" class="text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-md">Cancel</button>
+            <button type="submit"
+                    class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition duration-150 ease-in-out">
+                Delete Agent
+            </button>
         </div>
-
-        <!-- Index Name -->
-        <div>
-            <label class="block font-semibold mb-1 text-gray-700">Index Name</label>
-            <input type="text" name="index_name" id="index_name" required class="w-full border border-gray-300 p-3 rounded-lg" />
-        </div>
-
-        <button
-            type="submit"
-            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition duration-200"
-        >
-            Delete Agent
-        </button>
     </form>
-
-    <!-- Toast Message -->
-    <div id="toast" x-show="showToast" x-transition.duration.300ms x-cloak
-        :class="{
-            'bg-green-500': toastType === 'success',
-            'bg-red-500': toastType === 'error'
-        }"
-        class="fixed bottom-10 right-10 text-white px-4 py-2 rounded-lg shadow-lg"
-    >
-        <p x-text="toastMessage"></p>
-    </div>
 </div>
 
+<!-- Toast Notification Container -->
+<div id="toast-container" aria-live="assertive" aria-atomic="true" class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:items-start sm:p-6 z-50">
+  <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+    <!-- Toast notifications will be appended here -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-async function submitForm(event) {
-    event.preventDefault();  // Prevent form submission
-
-    // Get form data
-    const formData = new FormData(document.getElementById('delete-agent-form'));
-    const agent_name = formData.get('agent_name');
-    const user_id = formData.get('user_id');
-    const index_name = formData.get('index_name');
-
-    // Prepare data for DELETE request in JSON format
-    const data = {
-        agent_name,
-        user_id,
-        index_name
-    };
-
-    // Display loading state (optional)
-    const toast = document.getElementById('toast');
-    const toastMessage = 'Processing...';
-    toast.classList.remove('hidden');
-    toast.classList.add('bg-blue-500');
-    document.querySelector('#toast p').textContent = toastMessage;
-
-    // Send the data using fetch API with DELETE method
-    try {
-        const response = await fetch('http://127.0.0.1:8000/agent/delete_agent', {
-            method: 'DELETE',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-            },
-        });
-
-        // Check if the response is successful
-        const result = await response.json();
-
-        if (response.ok) {
-            // If successful, show success message
-            showToast(result.message, 'success');
-        } else {
-            // If the agent is not found (404), show the error message
-            showToast(result.message || 'Failed to delete agent', 'error');
-        }
-    } catch (error) {
-        showToast('An error occurred. Please try again.', 'error');
+    // --- Toast Function (use the one from create_agent.html) ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container').children[0]; // Target the inner div
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        const isSuccess = type === 'success';
+        const iconColor = isSuccess ? 'text-green-400' : 'text-red-400';
+        const iconPath = isSuccess ? 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z';
+        toast.className = `pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-300 ease-in-out transform opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2`;
+        toast.innerHTML = `
+          <div class="p-4"><div class="flex items-start"><div class="flex-shrink-0">
+            <svg class="h-6 w-6 ${iconColor}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="${iconPath}" /></svg>
+          </div><div class="ml-3 w-0 flex-1 pt-0.5">
+            <p class="text-sm font-medium text-gray-900">${isSuccess ? 'Success' : 'Error'}</p>
+            <p class="mt-1 text-sm text-gray-500">${message}</p>
+          </div><div class="ml-4 flex flex-shrink-0">
+            <button type="button" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="this.closest('[role=status]').remove()">
+              <span class="sr-only">Close</span>
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>
+            </button></div></div></div>`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => { toast.classList.remove('opacity-0', 'translate-y-2', 'sm:translate-x-2'); toast.classList.add('opacity-100', 'translate-y-0', 'sm:translate-x-0'); });
+        setTimeout(() => { toast.classList.remove('opacity-100', 'translate-y-0', 'sm:translate-x-0'); toast.classList.add('opacity-0', 'translate-y-2', 'sm:translate-x-2'); setTimeout(() => toast.remove(), 500); }, 5000);
     }
-}
+    // --- End Toast Function ---
 
-function showToast(message, type) {
-    const toast = document.getElementById('toast');
-    toast.classList.remove('hidden');
-    toast.classList.remove('bg-blue-500');
-    toast.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('delete-agent-form');
+        if (!form) return;
 
-    // Ensure we display the correct message from the backend response
-    const toastMessage = message && message.message ? message.message : message;
-    document.querySelector('#toast p').textContent = toastMessage;
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent; // Store text only
+        const cancelButton = form.querySelector('button[type="button"]');
 
-    // Hide the toast after 3 seconds
-    setTimeout(() => {
-        toast.classList.add('hidden');
-    }, 3000);
-}
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
 
+            // Basic confirmation (consider a more robust modal for production)
+            if (!confirm('Are you absolutely sure you want to delete this agent? This action cannot be undone.')) {
+                return; // Stop if user cancels
+            }
 
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Deleting...`;
+            if (cancelButton) cancelButton.disabled = true;
+
+            const formData = new FormData(form);
+            const agent_name = formData.get('agent_name');
+            const user_id = formData.get('user_id');
+            // Consider if index_name is needed for your DELETE API endpoint
+            // const index_name = formData.get('index_name'); 
+
+            // Construct the correct API URL
+            const apiUrl = `/api/user/agents/${user_id}/${agent_name}`; // Example RESTful URL
+
+            try {
+                 const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        // No Content-Type needed for standard DELETE usually
+                        'Accept': 'application/json',
+                    },
+                    // body: JSON.stringify({ index_name: index_name }), // Include body ONLY if your API requires it for DELETE
+                });
+
+                const result = await response.json().catch(() => ({})); // Handle potential empty/non-JSON response
+
+                if (response.ok) {
+                    showToast(result.message || 'Agent deleted successfully', 'success');
+                    form.reset(); // Clear form on success
+                } else {
+                     const errorMsg = result?.detail?.[0]?.msg || result?.detail || result?.message || `Failed to delete agent (Status: ${response.status})`;
+                     showToast(errorMsg, 'error');
+                }
+            } catch (error) {
+                 console.error('Delete error:', error);
+                 showToast('An error occurred. Check console.', 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText; // Restore original text
+                if (cancelButton) cancelButton.disabled = false;
+            }
+        });
+    });
 </script>
 {% endblock %}

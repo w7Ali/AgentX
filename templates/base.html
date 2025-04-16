@@ -5,22 +5,38 @@
     <title>{% block title %}RAG Platform{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <style>
+        /* Add your styles here */
+        .datetime-display {
+            transition: color 0.3s ease;
+        }
+        .datetime-pulse {
+            color: #4F46E5;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="h-full">
 
 <!-- Page Wrapper -->
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col bg-gray-100">
 
     <!-- Header -->
-    <header class="bg-blue-700 text-white shadow-md" style="background-color: #284754;">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 class="text-2xl font-bold">
-                <a href="/user"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 bg-blue-100 font-semibold text-blue-700">
-                       🧠 RAG Platform
+    <header class="text-indigo-100 shadow-md sticky top-0 z-30" style="background-color: #284754;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('welcome') }}" class="flex-shrink-0 flex items-center space-x-2 text-white hover:text-indigo-200 transition duration-150">
+                         <!-- Logo SVG -->
+                         <svg class="h-8 w-auto text-indigo-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5l.415-.207a.75.75 0 011.085.67V10.5m0 0h6m-6 0a.75.75 0 001.085.67l.415-.207M3 16.5V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v9a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 16.5zM9 12l3 3m0 0l3-3m-3 3V3" />
+                         </svg>
+                        <span class="font-bold text-xl tracking-tight text-white">RAG Platform</span>
                     </a>
-            </h1>
-            <span class="text-sm">Multi-model Agent Chatbot using FastAPI & Langchain</span>
+                </div>
+                <span class="text-sm text-indigo-200 hidden md:block">Multi-model Agent Chatbot</span>
+                 <!-- Optional: Add User Profile / Logout here -->
+                 <!-- Mobile menu button (if needed later) -->
+            </div>
         </div>
     </header>
 
@@ -29,34 +45,64 @@
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-lg hidden md:block" style="background-color: #7F9095;">
             <div class="p-6">
-                <h2 class="text-xl font-semibold mb-6" style="color:#844D32">Navigation</h2>
+                <!-- Modern DateTime Display -->
+                <div class="flex items-center mb-6 bg-white bg-opacity-20 rounded-lg p-3 shadow-sm">
+                    <div class="mr-3 text-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div id="date-display" class="text-sm font-medium text-gray-800"></div>
+                        <div id="time-display" class="text-lg font-bold datetime-display text-gray-900"></div>
+                    </div>
+                </div>
+
                 <nav class="space-y-2" >
-                    <a href="/user"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'home' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                       🏠 Home
+                    <a href="/"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'home' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                       <svg class="h-5 w-5 mr-3 {% if active_page == 'home' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                       </svg>
+                       <span>Home</span>
                     </a>
-                    <a href="/user/index/insert_data_to_index"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'upload' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                        📁 Upload Data
+                    <a href="/html/insert_data_to_index"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'upload' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                        <svg class="h-5 w-5 mr-3 {% if active_page == 'upload' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                        </svg>
+                        <span>Upload Data</span>
                     </a>
-                    <a href="/user/agent/create_agent"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'create_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                        🤖 Create Agent
+                    <a href="/html/create_agent"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'create_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                        <svg class="h-5 w-5 mr-3 {% if active_page == 'create_agent' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Create Agent</span>
                     </a>
-                    <a href="/user/agent/list_agents"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'list_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                        📋 Agents Setting
+                    <a href="/html/list_agents"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'list_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                        <svg class="h-5 w-5 mr-3 {% if active_page == 'list_agent' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-1.007 1.11-.916l6.07.915a.75.75 0 01.569.908l-1.958 7.754a.75.75 0 01-1.449.088l1.713-6.855-5.086-.763a.75.75 0 01-.61-.97zM9.6 15a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H9.6a.75.75 0 01-.75-.75v-.008zM14.4 11.61a.75.75 0 01.97-.61l6.07.916a.75.75 0 01.569.908l-1.958 7.754a.75.75 0 11-1.449-.088l1.713-6.855-5.086-.763a.75.75 0 01-.61-.97z" />
+                        </svg>
+                        <span>Agents Setting</span>
                     </a>
-                    <a href="/user/agent/delete_agent"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'delete_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                        🗑️ Delete Agent
+                    <a href="/html/delete_agent"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'delete_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                        <svg class="h-5 w-5 mr-3 {% if active_page == 'delete_agent' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                        <span>Delete Agent</span>
                     </a>
-                    <a href="/user/agent/ask_agent"
-                       class="block py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'ask_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
-                        💬 Ask Agent
+                    <a href="/html/ask_agent"
+                       class="flex items-center py-2 px-4 rounded hover:bg-blue-100 {% if active_page == 'ask_agent' %}bg-blue-100 font-semibold text-blue-700{% endif %}">
+                        <svg class="h-5 w-5 mr-3 {% if active_page == 'ask_agent' %}text-blue-700{% else %}text-gray-100{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.125 1.125 0 00.47-1.012v-2.805M8.25 3.75c0-1.6 1.123-2.994 2.707-3.227 1.087-.16 2.185-.283 3.293-.369V0l4.184 4.183a1.125 1.125 0 00.47 1.012v2.805" />
+                        </svg>
+                        <span>Ask Agent</span>
                     </a>
                 </nav>
-            </div>
+             </div>
         </aside>
 
         <!-- Main Content -->
@@ -69,9 +115,53 @@
 
     <!-- Footer -->
     <footer class="bg-white text-gray-500 text-center py-4 shadow-inner">
-        &copy; 2025 RAG Platform. Built with ❤️ using FastAPI & Langchain.
+        &copy; 2025 RAG Platform. Build by Yasmeena Hilal
     </footer>
+<script>
+function updateDateTime() {
+    const now = new Date();
+    
+    // Format date: Monday, January 15, 2024
+    const dateOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric'
+    };
+    const dateFormatted = now.toLocaleDateString('en-US', dateOptions);
+    
+    // Format time: 3:45:23 PM
+    const timeOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true 
+    };
+    const timeFormatted = now.toLocaleTimeString('en-US', timeOptions);
+    
+    // Add visual pulse effect on seconds change
+    const timeDisplay = document.getElementById('time-display');
+    timeDisplay.textContent = timeFormatted;
+    timeDisplay.classList.add('datetime-pulse');
+    
+    // Get timezone name
+    const timezone = now.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
+    
+    // Update elements
+    document.getElementById('date-display').textContent = dateFormatted + ' · ' + timezone;
+    
+    // Remove pulse effect after animation
+    setTimeout(() => {
+        timeDisplay.classList.remove('datetime-pulse');
+    }, 500);
+}
 
+// Initial load
+updateDateTime();
+
+// Update every second
+setInterval(updateDateTime, 1000);
+</script>
 </div>
 
 </body>

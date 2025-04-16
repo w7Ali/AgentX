@@ -1,133 +1,229 @@
+<!-- templates/create_agent.html -->
 {% extends "base.html" %}
 
 {% block title %}Create Agent{% endblock %}
 {% set active_page = 'create_agent' %}
 
+{% block content_header %}
+    <h1 class="text-2xl font-semibold text-gray-900">Create New Agent</h1>
+{% endblock %}
+
 {% block content %}
-<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">Create New Agent</h1>
-
-    <form id="createAgentForm" action="/agent/create_agent" method="post" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">Agent Name</label>
-                    <input type="text" name="agent_name" value="MyBot" required class="w-full border border-gray-300 p-3 rounded-lg" />
+<div class="bg-white shadow sm:rounded-lg">
+    <form id="createAgentForm" action="/agent/create_agent" method="post"> {# Action points to hypothetical API endpoint #}
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Agent Name -->
+                <div class="sm:col-span-3">
+                    <label for="agent_name" class="block text-sm font-medium leading-6 text-gray-900">Agent Name</label>
+                    <div class="mt-2">
+                        <input type="text" id="agent_name" name="agent_name" value="MyBot" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">A unique name for your agent.</p>
                 </div>
 
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">User ID</label>
-                    <input type="text" name="user_id" value="user1" required class="w-full border border-gray-300 p-3 rounded-lg" />
+                <!-- User ID -->
+                <div class="sm:col-span-3">
+                    <label for="user_id" class="block text-sm font-medium leading-6 text-gray-900">User ID</label>
+                    <div class="mt-2">
+                        <input type="text" id="user_id" name="user_id" value="user1" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Identifier for the user creating the agent.</p>
                 </div>
 
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">Index Name</label>
-                    <input type="text" name="index_name" value="index1" required class="w-full border border-gray-300 p-3 rounded-lg" />
+                <!-- Index Name -->
+                <div class="sm:col-span-3">
+                    <label for="index_name" class="block text-sm font-medium leading-6 text-gray-900">Index Name</label>
+                    <div class="mt-2">
+                        <input type="text" id="index_name" name="index_name" value="index1" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Vector DB index associated with this agent.</p>
                 </div>
 
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">LLM Provider</label>
-                    <input type="text" name="llm_provider" value="huggingface" required class="w-full border border-gray-300 p-3 rounded-lg" />
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">LLM Model Name</label>
-                    <input type="text" name="llm_model_name" value="mistralai/Mistral-7B-Instruct-v0.3" required class="w-full border border-gray-300 p-3 rounded-lg" />
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">LLM API Key</label>
-                    <input type="text" name="llm_api_key" value="pass" required class="w-full border border-gray-300 p-3 rounded-lg" />
+                 <!-- LLM Provider -->
+                <div class="sm:col-span-3">
+                    <label for="llm_provider" class="block text-sm font-medium leading-6 text-gray-900">LLM Provider</label>
+                    <div class="mt-2">
+                        <select id="llm_provider" name="llm_provider" required
+                                class="form-select block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6  px-2">
+                            <option value="openai">OpenAI</option>
+                            <option value="huggingface" selected>Hugging Face</option>
+                            <option value="ollama">Ollama</option>
+                            <!-- Add other providers as needed -->
+                        </select>
+                    </div>
+                     <p class="mt-2 text-xs text-gray-500">Choose the LLM provider.</p>
                 </div>
 
-                <div>
-                    <label class="block font-semibold mb-1 text-gray-700">Prompt Template</label>
-                    <textarea name="prompt_template" required class="w-full border border-gray-300 p-3 rounded-lg" rows="6">
-You are a knowledgeable assistant trained to provide answers based on accurate, reliable, and factual information. If you do not have enough data to answer a question, do not invent information or provide a speculative response. Instead, acknowledge the lack of sufficient data and refrain from answering. Only answer questions that you can confirm with the provided data. If the query is ambiguous or outside the scope of the data, state 'I do not have enough information to answer that.'
-                    </textarea>
+                <!-- LLM Model Name -->
+                <div class="sm:col-span-3">
+                    <label for="llm_model_name" class="block text-sm font-medium leading-6 text-gray-900">LLM Model Name</label>
+                    <div class="mt-2">
+                        <input type="text" id="llm_model_name" name="llm_model_name" value="mistralai/Mistral-7B-Instruct-v0.3" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2" />
+                    </div>
+                     <p class="mt-2 text-xs text-gray-500">Specific model identifier (e.g., gpt-4o, mistralai/...).</p>
+                </div>
+
+                <!-- LLM API Key -->
+                 <div class="sm:col-span-3">
+                    <label for="llm_api_key" class="block text-sm font-medium leading-6 text-gray-900">LLM API Key</label>
+                    <div class="mt-2">
+                        <input type="password" id="llm_api_key" name="llm_api_key" required
+                               class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2" />
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Your API key for the selected provider.</p>
+                </div>
+
+                <!-- Prompt Template -->
+                <div class="sm:col-span-6">
+                    <label for="prompt_template" class="block text-sm font-medium leading-6 text-gray-900">System Prompt Template</label>
+                    <div class="mt-2">
+                        <textarea id="prompt_template" name="prompt_template" required rows="5"
+                                  class="form-textarea block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6  px-2">You are a knowledgeable assistant trained to provide answers based on accurate, reliable, and factual information from the provided context. If you do not have enough context data to answer a question, do not invent information or provide a speculative response. Instead, acknowledge the lack of sufficient data by saying 'I do not have enough information to answer that.' Only answer questions that you can confirm with the provided context.</textarea>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">The base instructions guiding the agent's behavior and responses.</p>
                 </div>
             </div>
         </div>
-
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition duration-200" style="background-color: #152133;">
-            Create Agent
-        </button>
+        <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8 bg-gray-50">
+            <button type="button" class="text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-md">Cancel</button>
+            <button type="submit"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition duration-150 ease-in-out">
+                Create Agent
+            </button>
+        </div>
     </form>
 </div>
 
 <!-- Toast Notification Container -->
-<div id="toast-container" class="fixed top-4 right-4 space-y-4 z-50"></div>
+<div id="toast-container" aria-live="assertive" aria-atomic="true" class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:items-start sm:p-6 z-50">
+  <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+    <!-- Toast notifications will be appended here -->
+  </div>
+</div>
 
-<!-- Toast Styles -->
-<style>
-.toast {
-    opacity: 1;
-    transform: translateX(0);
-    transition: all 0.3s ease;
-}
-.toast-success {
-    background-color: #4ade80; /* green */
-}
-.toast-error {
-    background-color: #f87171; /* red */
-}
-</style>
+{% endblock %}
 
-<!-- JavaScript -->
+{% block extra_js %}
 <script>
     function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container').children[0]; // Target the inner div
+        if (!container) return;
+
         const toast = document.createElement('div');
-        toast.className = `toast px-4 py-2 rounded text-white shadow-lg ${
-            type === 'success' ? 'toast-success' : 'toast-error'
-        }`;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
 
-        toast.textContent = message;
+        const isSuccess = type === 'success';
+        const bgColor = isSuccess ? 'bg-green-500' : 'bg-red-500';
+        const iconColor = isSuccess ? 'text-green-400' : 'text-red-400';
+        const iconPath = isSuccess ? 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' // Check circle
+                                  : 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'; // Exclamation triangle
 
-        document.getElementById('toast-container').appendChild(toast);
+        toast.className = `pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-300 ease-in-out transform opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2`;
 
+        toast.innerHTML = `
+          <div class="p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 ${iconColor}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="${iconPath}" />
+                </svg>
+              </div>
+              <div class="ml-3 w-0 flex-1 pt-0.5">
+                <p class="text-sm font-medium text-gray-900">${isSuccess ? 'Success' : 'Error'}</p>
+                <p class="mt-1 text-sm text-gray-500">${message}</p>
+              </div>
+              <div class="ml-4 flex flex-shrink-0">
+                <button type="button" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="this.closest('[role=status]').remove()">
+                  <span class="sr-only">Close</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(toast);
+
+        // Animation: Fade in and slide in
+        requestAnimationFrame(() => {
+             toast.classList.remove('opacity-0', 'translate-y-2', 'sm:translate-x-2');
+             toast.classList.add('opacity-100', 'translate-y-0', 'sm:translate-x-0');
+        });
+
+        // Auto-dismiss after 5 seconds
         setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
+            toast.classList.remove('opacity-100', 'translate-y-0', 'sm:translate-x-0');
+            toast.classList.add('opacity-0', 'translate-y-2', 'sm:translate-x-2');
+            setTimeout(() => toast.remove(), 500); // Remove from DOM after transition
+        }, 5000);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('createAgentForm');
+        if (!form) return;
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        const cancelButton = form.querySelector('button[type="button"]'); // Assuming a cancel button exists
 
         form.addEventListener('submit', function(event) {
             event.preventDefault();
 
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating...`;
+            if (cancelButton) cancelButton.disabled = true;
+
             const formData = new FormData(form);
             const jsonData = {};
-            formData.forEach((value, key) => {
-                jsonData[key] = value;
-            });
+            formData.forEach((value, key) => { jsonData[key] = value; });
 
-            fetch(form.action, {
+            // --- Replace with your actual API endpoint and logic --- 
+            const apiUrl = form.action; // Get action from form attribute
+            fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify(jsonData),
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData?.message || 'Something went wrong');
-                    });
+            .then(async response => {
+                 const data = await response.json().catch(() => ({})); // Try to parse JSON, default to empty object
+                 if (!response.ok) {
+                    // Construct error message from potential detail fields or fallback
+                    const errorMsg = data?.detail?.[0]?.msg || data?.detail || data?.message || `HTTP error ${response.status}`;
+                    throw new Error(errorMsg);
                 }
-                return response.json();
+                return data; // Return parsed JSON data on success
             })
             .then(data => {
-                showToast(data.message || 'Agent created successfully', 'success');
-                form.reset();
+                showToast(data.message || 'Agent created successfully!', 'success');
+                form.reset(); // Clear form on success
+                 // Optionally redirect or update UI further
             })
             .catch((error) => {
-                showToast(error.message || 'Failed to create agent', 'error');
+                 console.error('Form submission error:', error);
+                 showToast(error.message || 'Failed to create agent. Check console.', 'error');
+            })
+            .finally(() => {
+                 submitButton.disabled = false;
+                 submitButton.textContent = originalButtonText;
+                 if (cancelButton) cancelButton.disabled = false;
             });
+             // --- End of API call --- 
         });
     });
 </script>
